@@ -1,0 +1,32 @@
+-- Problem: Average Time Per Machine
+-- Approach: Self-Join
+
+SELECT 
+    a.machine_id,                                    -- Select machine_id to group results per machine
+    ROUND(AVG(b.timestamp - a.timestamp), 3) AS processing_time  -- Calculate average (end - start) per machine, rounded to 3 decimals
+FROM Activity a
+JOIN Activity b
+  ON a.machine_id = b.machine_id                     -- Match same machine
+ AND a.process_id = b.process_id                     -- Match same process
+WHERE a.activity_type = 'start'                      -- Keep only start rows in alias 'a'
+  AND b.activity_type = 'end'                        -- Keep only end rows in alias 'b'
+GROUP BY a.machine_id;                               -- Group by machine_id to compute the average per machine
+
+-- Problem: Average Time Per Machine
+-- Approach: Conditional Aggregation (no self-join)
+
+SELECT 
+    machine_id,                                      -- Select machine_id
+    ROUND(AVG(process_time), 3) AS processing_time   -- Average process_time per machine, rounded to 3 decimals
+FROM (
+    SELECT 
+        machine_id,                                  -- Group by machine_id
+        process_id,                                  -- Group by process_id (since each process has one start and one end)
+        MAX(CASE WHEN activity_type = 'end' THEN timestamp END) -   -- Extract the 'end' timestamp for this process
+        MAX(CASE WHEN activity_type = 'start' THEN timestamp END)   -- Extract the 'start' timestamp for this process
+        AS process_time                              -- Subtract to get duration for this process
+    FROM Activity
+    GROUP BY machine_id, process_id                  -- Ensure we get start and end per process
+) t
+GROUP BY machine_id;                                 -- Now average durations per machine
+
