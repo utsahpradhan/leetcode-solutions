@@ -57,8 +57,8 @@ Output:
 | 2          | 1.456           |
 +------------+-----------------+
 
-
--- Problem: Average Time Per Machine
+---***SOLUTION STARTS HERE***---
+    
 -- Approach: Conditional Aggregation (no self-join)
     
 SELECT 
@@ -72,7 +72,6 @@ WHERE a.activity_type = 'start'                      -- Keep only start rows in 
   AND b.activity_type = 'end'                        -- Keep only end rows in alias 'b'
 GROUP BY a.machine_id;                               -- Group by machine_id to compute the average per machine
 
--- Problem: Average Time Per Machine
 -- Approach: Conditional Aggregation (no self-join)
 
 SELECT 
